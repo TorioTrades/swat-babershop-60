@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Scissors, Zap, Sparkles, Crown, ShieldCheck } from 'lucide-react';
@@ -14,35 +13,35 @@ const Services = () => {
     title: "Sharp & Styled",
     description: "Modern / Classic Haircut",
     price: "₱149",
-    duration: "45 min",
+    duration: "20 min",
     image: "/lovable-uploads/7aee0ed7-6dba-4bc2-b815-74c6900bc1cd.png"
   }, {
     icon: <Zap className="h-6 w-6" />,
     title: "Clean Cut Duo",
     description: "Haircut + Shave",
     price: "₱180",
-    duration: "60 min",
+    duration: "30 min",
     image: "/lovable-uploads/2fb267ab-5d5f-455d-b2d1-29f551649058.png"
   }, {
     icon: <ShieldCheck className="h-6 w-6" />,
     title: "Korean Perms",
     description: "Light Perm, Medium Perm, Afro Perm",
     price: "₱850 - ₱1,100",
-    duration: "2-3 hours",
+    duration: "120 min",
     image: "/lovable-uploads/02cc930e-d4a6-46f7-996f-8df9ff708feb.png"
   }, {
     icon: <Crown className="h-6 w-6" />,
     title: "SWAT Signature Edge",
     description: "Haircut + Hair Art",
     price: "₱200",
-    duration: "90 min",
+    duration: "30 min",
     image: "/lovable-uploads/2b8fde17-5e2e-4ad1-acb6-7f5b748372ec.png"
   }, {
     icon: <Sparkles className="h-6 w-6" />,
     title: "Little Trooper",
     description: "Kids Classic / Modern Haircuts",
     price: "₱170",
-    duration: "30 min",
+    duration: "20 min",
     image: "/lovable-uploads/1435280c-843e-42e9-9ee3-290621dd7673.png"
   }];
 
