@@ -1,10 +1,12 @@
 import { BookingData } from '../BookingDialog';
+
 interface BarberSelectionProps {
   bookingData: BookingData;
   setBookingData: (data: BookingData) => void;
   onNext: () => void;
   onClose: () => void;
 }
+
 const barbers = [{
   id: '1',
   name: 'Kean',
@@ -14,16 +16,17 @@ const barbers = [{
 }, {
   id: '2',
   name: 'Pao',
-  image: '/lovable-uploads/7161e7a6-7753-41f1-a4fe-1bf7e75637df.png',
+  image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Modern Styles', 'Fade Cuts', 'Hair Washing'],
   experience: '2 years experience'
 }, {
   id: '3',
   name: 'Gelo',
-  image: '/lovable-uploads/b969197e-961e-4537-affa-70712a25ac5c.png',
+  image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Traditional Cuts', 'Mustache Grooming', 'Scalp Treatment'],
   experience: '2 years experience'
 }];
+
 const BarberSelection = ({
   bookingData,
   setBookingData,
@@ -66,4 +69,5 @@ const BarberSelection = ({
       </div>
     </div>;
 };
+
 export default BarberSelection;
