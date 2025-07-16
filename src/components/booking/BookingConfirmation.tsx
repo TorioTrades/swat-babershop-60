@@ -173,9 +173,11 @@ const BookingConfirmation = forwardRef<BookingConfirmationRef, BookingConfirmati
                 <p className="text-gray-400 text-xs">
                   {bookingData.customerInfo.phone}
                 </p>
-                <p className="text-gray-400 text-xs">
-                  {bookingData.customerInfo.email}
-                </p>
+                {bookingData.customerInfo.email && (
+                  <p className="text-gray-400 text-xs">
+                    {bookingData.customerInfo.email}
+                  </p>
+                )}
               </div>
             </div>
           </div>

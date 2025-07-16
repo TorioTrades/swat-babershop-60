@@ -103,8 +103,7 @@ const BookingDialog = ({ open, onOpenChange }: BookingDialogProps) => {
       case 3:
         return (
           bookingData.customerInfo.name.trim() !== '' &&
-          bookingData.customerInfo.phone.trim() !== '' &&
-          bookingData.customerInfo.email.trim() !== ''
+          bookingData.customerInfo.phone.trim() !== ''
         );
       case 4:
         return true;

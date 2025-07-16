@@ -147,6 +147,36 @@ const BookingSuccess = ({
         </p>
       </div>
 
+      {/* Important Instructions */}
+      <div className="bg-barbershop-gold/10 border border-barbershop-gold/30 rounded-lg p-4 text-left">
+        <div className="flex items-center space-x-2 mb-3">
+          <AlertCircle className="h-5 w-5 text-barbershop-gold" />
+          <h3 className="text-barbershop-gold font-semibold text-sm">Important Instructions</h3>
+        </div>
+        <div className="bg-barbershop-gold/5 border border-barbershop-gold/20 rounded-lg p-3 mb-3">
+          <p className="text-barbershop-gold text-sm font-medium mb-1">
+            📱 Show this confirmation to our staff
+          </p>
+          <p className="text-gray-300 text-xs">
+            Please present this booking confirmation (screenshot or download) to the receptionist or barber when you arrive at the shop.
+          </p>
+        </div>
+        <ul className="space-y-1 text-xs text-gray-300">
+          <li className="flex items-start space-x-2">
+            <span className="text-barbershop-gold mt-1">•</span>
+            <span>Take a screenshot or download this confirmation</span>
+          </li>
+          <li className="flex items-start space-x-2">
+            <span className="text-barbershop-gold mt-1">•</span>
+            <span>Arrive 10 minutes before your appointment time</span>
+          </li>
+          <li className="flex items-start space-x-2">
+            <span className="text-barbershop-gold mt-1">•</span>
+            <span>Payment will be collected at the barbershop</span>
+          </li>
+        </ul>
+      </div>
+
       {/* Booking Details Card */}
       <div className="bg-barbershop-gold/10 border border-barbershop-gold/30 rounded-lg p-4 space-y-3 text-left">
         <div className="grid grid-cols-2 gap-3">
@@ -181,32 +211,23 @@ const BookingSuccess = ({
         </div>
       </div>
 
-      {/* Important Reminders */}
+      {/* Additional Reminders */}
       <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 text-left">
         <div className="flex items-center space-x-2 mb-2">
-          <AlertCircle className="h-4 w-4 text-orange-500" />
-          <h3 className="text-orange-500 font-semibold text-sm">Important Reminders</h3>
+          <Clock className="h-4 w-4 text-orange-500" />
+          <h3 className="text-orange-500 font-semibold text-sm">Additional Reminders</h3>
         </div>
         <ul className="space-y-1 text-xs text-gray-300">
           <li className="flex items-start space-x-2">
             <span className="text-orange-500 mt-1">•</span>
-            <span>Please arrive 10 minutes before your appointment time</span>
-          </li>
-          
-          <li className="flex items-start space-x-2">
-            <span className="text-orange-500 mt-1">•</span>
-            <span>Payment is due at the time of service</span>
-          </li>
-          
-          <li className="flex items-start space-x-2">
-            <span className="text-orange-500 mt-1">•</span>
             <span>Late arrivals may result in shortened service time</span>
+          </li>
+          <li className="flex items-start space-x-2">
+            <span className="text-orange-500 mt-1">•</span>
+            <span>Cancellations must be made at least 2 hours in advance</span>
           </li>
         </ul>
       </div>
-
-      {/* Contact Information */}
-      
 
       {/* Action Buttons */}
       <div className="space-y-3">
@@ -225,4 +246,5 @@ const BookingSuccess = ({
       </div>
     </div>;
 };
+
 export default BookingSuccess;
