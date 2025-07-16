@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
 import { BookingData } from '../BookingDialog';
+
 interface BookingSuccessProps {
   bookingData: BookingData;
   setBookingData: (data: BookingData) => void;
   onNext: () => void;
   onClose: () => void;
 }
+
 const BookingSuccess = ({
   bookingData,
   onClose
@@ -91,25 +93,41 @@ const BookingSuccess = ({
       // Remove the temporary element
       document.body.removeChild(element);
       
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `booking-confirmation-${bookingData.customerInfo.name.replace(/\s+/g, '-')}-${bookingId}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      // Convert canvas to blob for better mobile compatibility
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `booking-confirmation-${bookingData.customerInfo.name.replace(/\s+/g, '-')}-${bookingId}.png`;
+          
+          // For mobile compatibility, add the link to the document temporarily
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up the blob URL
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          
+          toast({
+            title: "Download Complete",
+            description: "Booking confirmation has been downloaded",
+          });
+        } else {
+          throw new Error('Failed to create blob');
+        }
+      }, 'image/png');
       
-      toast({
-        title: "Download Complete",
-        description: "Booking confirmation has been downloaded",
-      });
     } catch (error) {
       console.error('Error downloading booking confirmation:', error);
       toast({
         title: "Download Failed",
-        description: "Failed to download booking confirmation",
+        description: "Failed to download booking confirmation. Please try again or take a screenshot.",
         variant: "destructive",
       });
     }
   };
+
   return <div className="text-center space-y-6">
       {/* Success Icon */}
       <div className="flex justify-center">
