@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ export const UnavailabilityManager = ({ barberName }: UnavailabilityManagerProps
 
   const loadUnavailableSlots = async () => {
     try {
+      console.log('Loading unavailable slots for:', barberName);
       const { data, error } = await supabase
         .from('unavailable_slots')
         .select('*')
@@ -55,12 +57,23 @@ export const UnavailabilityManager = ({ barberName }: UnavailabilityManagerProps
 
       if (error) {
         console.error('Error loading unavailable slots:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load unavailable slots",
+          variant: "destructive"
+        });
         return;
       }
 
+      console.log('Loaded unavailable slots:', data);
       setUnavailableSlots(data || []);
     } catch (error) {
       console.error('Error loading unavailable slots:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load unavailable slots",
+        variant: "destructive"
+      });
     }
   };
 
@@ -85,6 +98,8 @@ export const UnavailabilityManager = ({ barberName }: UnavailabilityManagerProps
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
     
     try {
+      console.log('Marking whole day unavailable:', { barberName, dateStr, reason });
+      
       const { error } = await supabase
         .from('unavailable_slots')
         .insert({
@@ -137,6 +152,8 @@ export const UnavailabilityManager = ({ barberName }: UnavailabilityManagerProps
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
     
     try {
+      console.log('Marking time slots unavailable:', { barberName, dateStr, selectedTimes, reason });
+      
       const slotsToInsert = selectedTimes.map(time => ({
         barber_name: barberName,
         date: dateStr,
@@ -181,6 +198,8 @@ export const UnavailabilityManager = ({ barberName }: UnavailabilityManagerProps
 
   const removeUnavailableSlot = async (id: string) => {
     try {
+      console.log('Removing unavailable slot:', id);
+      
       const { error } = await supabase
         .from('unavailable_slots')
         .delete()
