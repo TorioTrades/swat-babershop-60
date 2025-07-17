@@ -1,4 +1,3 @@
-
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BookingData } from '../BookingDialog';
@@ -15,6 +14,7 @@ const CustomerInfo = ({
   setBookingData
 }: CustomerInfoProps) => {
   const handleCustomerInfoChange = (field: keyof BookingData['customerInfo'], value: string) => {
+    console.log('Customer info field updated:', field, value);
     setBookingData({
       ...bookingData,
       customerInfo: {
