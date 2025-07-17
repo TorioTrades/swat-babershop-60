@@ -225,14 +225,77 @@ export const appointmentStore = {
 
   async deleteAppointment(id: string): Promise<void> {
     try {
-      const { error } = await supabase
+      console.log('Deleting appointment and related duration blocks:', id);
+      
+      // First, get the appointment details to find related duration blocks
+      const { data: appointment, error: fetchError } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching appointment for deletion:', fetchError);
+        return;
+      }
+
+      if (!appointment) {
+        console.error('Appointment not found for deletion:', id);
+        return;
+      }
+
+      console.log('Found appointment to delete:', appointment);
+
+      // Delete the main appointment
+      const { error: deleteMainError } = await supabase
         .from('appointments')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        console.error('Error deleting appointment:', error);
+      if (deleteMainError) {
+        console.error('Error deleting main appointment:', deleteMainError);
+        return;
       }
+
+      console.log('Main appointment deleted successfully');
+
+      // Now delete any duration block appointments that match the same barber, date, time pattern
+      // Duration blocks have service names like "Korean Perms (Duration Block 2 of 6)"
+      const baseService = appointment.service.replace(/ \(Duration Block \d+ of \d+\)$/, '');
+      console.log('Looking for duration blocks with base service:', baseService);
+
+      const { data: durationBlocks, error: fetchDurationError } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('barber_name', appointment.barber_name)
+        .eq('date', appointment.date)
+        .eq('customer_name', appointment.customer_name)
+        .eq('customer_phone', appointment.customer_phone)
+        .like('service', `${baseService} (Duration Block%`);
+
+      if (fetchDurationError) {
+        console.error('Error fetching duration blocks:', fetchDurationError);
+        return;
+      }
+
+      if (durationBlocks && durationBlocks.length > 0) {
+        console.log('Found duration blocks to delete:', durationBlocks.length);
+        
+        const durationBlockIds = durationBlocks.map(block => block.id);
+        const { error: deleteDurationError } = await supabase
+          .from('appointments')
+          .delete()
+          .in('id', durationBlockIds);
+
+        if (deleteDurationError) {
+          console.error('Error deleting duration blocks:', deleteDurationError);
+        } else {
+          console.log('Successfully deleted duration blocks:', durationBlockIds.length);
+        }
+      } else {
+        console.log('No duration blocks found to delete');
+      }
+
     } catch (error) {
       console.error('Error deleting appointment:', error);
     }
