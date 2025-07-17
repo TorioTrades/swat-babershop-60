@@ -246,54 +246,54 @@ export const appointmentStore = {
 
       console.log('Found appointment to delete:', appointment);
 
-      // Delete the main appointment
-      const { error: deleteMainError } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', id);
-
-      if (deleteMainError) {
-        console.error('Error deleting main appointment:', deleteMainError);
-        return;
-      }
-
-      console.log('Main appointment deleted successfully');
-
-      // Now delete any duration block appointments that match the same barber, date, time pattern
-      // Duration blocks have service names like "Korean Perms (Duration Block 2 of 6)"
+      // Extract the base service name without duration block suffix
       const baseService = appointment.service.replace(/ \(Duration Block \d+ of \d+\)$/, '');
-      console.log('Looking for duration blocks with base service:', baseService);
+      console.log('Base service name:', baseService);
 
-      const { data: durationBlocks, error: fetchDurationError } = await supabase
+      // Find all appointments (main + duration blocks) for this booking
+      // They should all have the same barber, date, customer info, and either the exact service name or be duration blocks
+      const { data: relatedAppointments, error: fetchRelatedError } = await supabase
         .from('appointments')
         .select('*')
         .eq('barber_name', appointment.barber_name)
         .eq('date', appointment.date)
         .eq('customer_name', appointment.customer_name)
         .eq('customer_phone', appointment.customer_phone)
-        .like('service', `${baseService} (Duration Block%`);
+        .or(`service.eq.${baseService},service.like.${baseService} (Duration Block%`);
 
-      if (fetchDurationError) {
-        console.error('Error fetching duration blocks:', fetchDurationError);
+      if (fetchRelatedError) {
+        console.error('Error fetching related appointments:', fetchRelatedError);
         return;
       }
 
-      if (durationBlocks && durationBlocks.length > 0) {
-        console.log('Found duration blocks to delete:', durationBlocks.length);
+      if (relatedAppointments && relatedAppointments.length > 0) {
+        console.log('Found related appointments to delete:', relatedAppointments.length);
+        console.log('Related appointments:', relatedAppointments.map(apt => ({ id: apt.id, service: apt.service, time: apt.time })));
         
-        const durationBlockIds = durationBlocks.map(block => block.id);
-        const { error: deleteDurationError } = await supabase
+        const appointmentIds = relatedAppointments.map(apt => apt.id);
+        const { error: deleteError } = await supabase
           .from('appointments')
           .delete()
-          .in('id', durationBlockIds);
+          .in('id', appointmentIds);
 
-        if (deleteDurationError) {
-          console.error('Error deleting duration blocks:', deleteDurationError);
+        if (deleteError) {
+          console.error('Error deleting related appointments:', deleteError);
         } else {
-          console.log('Successfully deleted duration blocks:', durationBlockIds.length);
+          console.log('Successfully deleted all related appointments:', appointmentIds.length);
         }
       } else {
-        console.log('No duration blocks found to delete');
+        console.log('No related appointments found, deleting single appointment');
+        // Fallback: delete just the single appointment if no related ones found
+        const { error: deleteMainError } = await supabase
+          .from('appointments')
+          .delete()
+          .eq('id', id);
+
+        if (deleteMainError) {
+          console.error('Error deleting main appointment:', deleteMainError);
+        } else {
+          console.log('Main appointment deleted successfully');
+        }
       }
 
     } catch (error) {
