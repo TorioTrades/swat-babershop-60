@@ -7,12 +7,14 @@ export interface Barber {
   name: string;
   username: string;
   password: string;
+  isAdmin?: boolean;
 }
 
 const barbers: Barber[] = [
   { id: '1', name: 'Kean', username: 'Kean', password: 'Barber' },
   { id: '2', name: 'Pao', username: 'Pao', password: 'Barber' },
-  { id: '3', name: 'Gelo', username: 'Gelo', password: 'Barber' }
+  { id: '3', name: 'Gelo', username: 'Gelo', password: 'Barber' },
+  { id: 'admin', name: 'Admin', username: 'ADMIN', password: 'ADMIN', isAdmin: true }
 ];
 
 const Admin = () => {

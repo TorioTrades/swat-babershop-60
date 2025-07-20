@@ -34,8 +34,15 @@ export const AdminDashboard = ({
     loadAppointments();
   }, [barber.name]);
   const loadAppointments = async () => {
-    const barberAppointments = await appointmentStore.getAppointmentsByBarber(barber.name);
-    setAppointments(barberAppointments);
+    if (barber.isAdmin) {
+      // Admin can see all appointments from all barbers
+      const allAppointments = await appointmentStore.getAppointments();
+      setAppointments(allAppointments);
+    } else {
+      // Regular barber sees only their own appointments
+      const barberAppointments = await appointmentStore.getAppointmentsByBarber(barber.name);
+      setAppointments(barberAppointments);
+    }
   };
   const updateAppointmentStatus = async (id: string, status: 'pending' | 'confirmed' | 'completed' | 'cancelled') => {
     await appointmentStore.updateAppointmentStatus(id, status);
@@ -47,13 +54,22 @@ export const AdminDashboard = ({
   };
   const clearAllAppointments = async () => {
     try {
-      console.log('Clearing all appointments for barber:', barber.name);
-      await appointmentStore.clearBarberAppointments(barber.name);
+      if (barber.isAdmin) {
+        console.log('Admin clearing all appointments from all barbers');
+        await appointmentStore.clearAllAppointments();
+        toast({
+          title: "All Cleared",
+          description: "All appointments from all barbers have been cleared"
+        });
+      } else {
+        console.log('Clearing all appointments for barber:', barber.name);
+        await appointmentStore.clearBarberAppointments(barber.name);
+        toast({
+          title: "All Cleared",
+          description: "All your appointments have been cleared"
+        });
+      }
       await loadAppointments();
-      toast({
-        title: "All Cleared",
-        description: "All your appointments have been cleared"
-      });
       console.log('Successfully cleared all appointments');
     } catch (error) {
       console.error('Error clearing appointments:', error);
@@ -123,7 +139,7 @@ export const AdminDashboard = ({
               <h3 style="color: #D4AF37; margin: 0 0 10px 0; font-size: 18px;">Appointment Details</h3>
               <p style="margin: 5px 0; font-size: 16px;"><strong>Date:</strong> ${appointment.date}</p>
               <p style="margin: 5px 0; font-size: 16px;"><strong>Time:</strong> ${appointment.time}</p>
-              <p style="margin: 5px 0; font-size: 16px;"><strong>Barber:</strong> ${barber.name}</p>
+              <p style="margin: 5px 0; font-size: 16px;"><strong>Barber:</strong> ${appointment.barberName}</p>
             </div>
             
             <div style="border-bottom: 1px solid #eee; padding-bottom: 15px;">
@@ -308,16 +324,17 @@ export const AdminDashboard = ({
                   {/* Desktop Table View */}
                   <div className="hidden sm:block">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Customer</TableHead>
-                          <TableHead>Contact</TableHead>
-                          <TableHead>Appointment</TableHead>
-                          <TableHead>Service</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
+                       <TableHeader>
+                         <TableRow>
+                           <TableHead>Customer</TableHead>
+                           <TableHead>Contact</TableHead>
+                           <TableHead>Appointment</TableHead>
+                           {barber.isAdmin && <TableHead>Barber</TableHead>}
+                           <TableHead>Service</TableHead>
+                           <TableHead>Status</TableHead>
+                           <TableHead>Actions</TableHead>
+                         </TableRow>
+                       </TableHeader>
                       <TableBody>
                         {filterAppointments(filter).map(appointment => <TableRow key={appointment.id}>
                             <TableCell>
@@ -340,12 +357,17 @@ export const AdminDashboard = ({
                                   <div className="text-sm text-muted-foreground">{appointment.time}</div>
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{appointment.service}</div>
-                                <div className="text-sm text-muted-foreground">₱{appointment.price}</div>
-                              </div>
+                             </TableCell>
+                             {barber.isAdmin && (
+                               <TableCell>
+                                 <div className="font-medium">{appointment.barberName}</div>
+                               </TableCell>
+                             )}
+                             <TableCell>
+                               <div>
+                                 <div className="font-medium">{appointment.service}</div>
+                                 <div className="text-sm text-muted-foreground">₱{appointment.price}</div>
+                               </div>
                             </TableCell>
                             <TableCell>
                               {getStatusBadge(appointment.status)}
@@ -402,6 +424,12 @@ export const AdminDashboard = ({
                                 <p className="font-medium">{appointment.service}</p>
                                 <p className="text-muted-foreground">₱{appointment.price}</p>
                               </div>
+                              {barber.isAdmin && (
+                                <div>
+                                  <p className="text-muted-foreground">Barber</p>
+                                  <p className="font-medium">{appointment.barberName}</p>
+                                </div>
+                              )}
                             </div>
 
                             {/* Action Buttons */}
