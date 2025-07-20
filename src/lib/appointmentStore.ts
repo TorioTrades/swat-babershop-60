@@ -54,6 +54,18 @@ export const appointmentStore = {
 
   async addAppointment(appointment: Omit<Appointment, 'id' | 'createdAt'>): Promise<Appointment | null> {
     try {
+      console.log('Adding appointment with data:', {
+        barber_name: appointment.barberName,
+        customer_name: appointment.customerName,
+        customer_phone: appointment.customerPhone,
+        customer_email: appointment.customerEmail,
+        service: appointment.service,
+        date: appointment.date,
+        time: appointment.time, // Log the actual time value being passed
+        status: appointment.status,
+        price: appointment.price,
+      });
+
       const { data, error } = await supabase
         .from('appointments')
         .insert({
@@ -74,6 +86,8 @@ export const appointmentStore = {
         console.error('Error adding appointment:', error);
         return null;
       }
+
+      console.log('Successfully added appointment:', data);
 
       return {
         id: data.id,

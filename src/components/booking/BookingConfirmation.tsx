@@ -1,8 +1,12 @@
+
+import { forwardRef, useImperativeHandle } from 'react';
 import { format } from 'date-fns';
-import { User, Scissors, Calendar, Clock, DollarSign } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, User, Scissors, DollarSign, Phone, Mail } from 'lucide-react';
 import { BookingData } from '../BookingDialog';
 import { appointmentStore } from '@/lib/appointmentStore';
-import { forwardRef, useImperativeHandle } from 'react';
+import { toast } from 'sonner';
 
 interface BookingConfirmationProps {
   bookingData: BookingData;
@@ -11,203 +15,223 @@ interface BookingConfirmationProps {
   onClose: () => void;
 }
 
-export interface BookingConfirmationRef {
-  handleConfirm: () => Promise<void>;
-}
-
-const BookingConfirmation = forwardRef<BookingConfirmationRef, BookingConfirmationProps>(
+const BookingConfirmation = forwardRef<{ handleConfirm: () => Promise<void> }, BookingConfirmationProps>(
   ({ bookingData, setBookingData, onNext }, ref) => {
-    useImperativeHandle(ref, () => ({
-      async handleConfirm() {
-        // Save appointment to store with duration-based slot blocking
-        if (bookingData.barber && bookingData.service && bookingData.date && bookingData.time) {
-          console.log('Saving appointment:', {
-            barberName: bookingData.barber.name,
-            customerName: bookingData.customerInfo.name,
-            service: bookingData.service.name,
-            date: format(bookingData.date, 'yyyy-MM-dd'),
-            time: bookingData.time,
-            status: 'pending',
-            price: bookingData.service.price + 20,
-            duration: bookingData.service.duration,
-          });
-          
-          // Calculate the number of 20-minute slots needed
-          const slotsNeeded = Math.ceil(bookingData.service.duration / 20);
-          const timeSlots = [
-            '9:00 AM', '9:20 AM', '9:40 AM', '10:00 AM', '10:20 AM', '10:40 AM',
-            '11:00 AM', '11:20 AM', '11:40 AM', '12:00 PM', '12:20 PM', '12:40 PM',
-            '1:00 PM', '1:20 PM', '1:40 PM', '2:00 PM', '2:20 PM', '2:40 PM',
-            '3:00 PM', '3:20 PM', '3:40 PM', '4:00 PM', '4:20 PM', '4:40 PM',
-            '5:00 PM', '5:20 PM', '5:40 PM', '6:00 PM', '6:20 PM', '6:40 PM', '7:00 PM'
-          ];
-          
-          // Find the starting slot index
-          const startIndex = timeSlots.indexOf(bookingData.time);
-          
-          // Create appointment entries for all required slots
-          const appointmentPromises = [];
-          for (let i = 0; i < slotsNeeded && (startIndex + i) < timeSlots.length; i++) {
-            const slotTime = timeSlots[startIndex + i];
-            const isMainAppointment = i === 0;
-            
-            appointmentPromises.push(
-              appointmentStore.addAppointment({
-                barberName: bookingData.barber.name,
-                customerName: bookingData.customerInfo.name,
-                customerPhone: bookingData.customerInfo.phone,
-                customerEmail: bookingData.customerInfo.email,
-                service: isMainAppointment 
-                  ? bookingData.service.name 
-                  : `${bookingData.service.name} (Duration Block)`,
-                date: format(bookingData.date, 'yyyy-MM-dd'),
-                time: slotTime,
-                status: 'pending',
-                price: isMainAppointment ? bookingData.service.price + 20 : 0,
-              })
-            );
+    const generateTimeSlots = (startTime: string, duration: number) => {
+      console.log('Generating time slots for:', { startTime, duration });
+      
+      if (duration <= 20) {
+        console.log('Single slot for duration <= 20 minutes');
+        return [startTime];
+      }
+
+      const slots = [];
+      const [timeStr, period] = startTime.split(' ');
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      
+      let hour24 = hours;
+      if (period === 'PM' && hours !== 12) {
+        hour24 = hours + 12;
+      } else if (period === 'AM' && hours === 12) {
+        hour24 = 0;
+      }
+
+      let currentHour = hour24;
+      let currentMinute = minutes;
+      
+      const numberOfSlots = Math.ceil(duration / 20);
+      console.log('Number of slots needed:', numberOfSlots);
+
+      for (let i = 0; i < numberOfSlots; i++) {
+        let displayHour = currentHour;
+        let displayPeriod = 'AM';
+        
+        if (displayHour >= 12) {
+          displayPeriod = 'PM';
+          if (displayHour > 12) {
+            displayHour = displayHour - 12;
           }
-          
-          try {
-            const results = await Promise.all(appointmentPromises);
-            console.log('All appointment slots saved:', results);
-            
-            if (results.every(result => result !== null)) {
-              // Get the booking ID from the first main appointment
-              const mainAppointment = results.find(result => result !== null);
-              if (mainAppointment) {
-                setBookingData({
-                  ...bookingData,
-                  bookingId: mainAppointment.id
-                });
-              }
-              onNext();
-            } else {
-              console.error('Some appointment slots failed to save');
-            }
-          } catch (error) {
-            console.error('Error saving appointment slots:', error);
-          }
+        } else if (displayHour === 0) {
+          displayHour = 12;
+        }
+
+        const timeSlot = `${displayHour}:${currentMinute.toString().padStart(2, '0')} ${displayPeriod}`;
+        slots.push(timeSlot);
+        console.log(`Generated slot ${i + 1}:`, timeSlot);
+
+        // Add 20 minutes for next slot
+        currentMinute += 20;
+        if (currentMinute >= 60) {
+          currentHour += 1;
+          currentMinute -= 60;
         }
       }
+
+      return slots;
+    };
+
+    const handleConfirm = async () => {
+      if (!bookingData.barber || !bookingData.service || !bookingData.date || !bookingData.time) {
+        toast.error('Missing booking information');
+        return;
+      }
+
+      try {
+        console.log('Creating appointment with booking data:', bookingData);
+        
+        const timeSlots = generateTimeSlots(bookingData.time, bookingData.service.duration);
+        console.log('Time slots to book:', timeSlots);
+
+        const appointmentPromises = timeSlots.map(async (timeSlot, index) => {
+          const serviceName = timeSlots.length > 1 && index > 0 
+            ? `${bookingData.service!.name} (Duration Block ${index + 1} of ${timeSlots.length})`
+            : bookingData.service!.name;
+
+          const appointmentData = {
+            barberName: bookingData.barber!.name,
+            customerName: bookingData.customerInfo.name,
+            customerPhone: bookingData.customerInfo.phone,
+            customerEmail: bookingData.customerInfo.email,
+            service: serviceName,
+            date: format(bookingData.date!, 'yyyy-MM-dd'),
+            time: timeSlot, // Make sure this is the actual time string, not undefined
+            status: 'pending' as const,
+            price: index === 0 ? bookingData.service!.price + 20 : 0, // Only first slot has price + priority fee
+          };
+
+          console.log('Saving appointment:', appointmentData);
+          return await appointmentStore.addAppointment(appointmentData);
+        });
+
+        const results = await Promise.all(appointmentPromises);
+        console.log('All appointment slots saved:', results);
+
+        const hasFailedSlots = results.some(result => result === null);
+        if (hasFailedSlots) {
+          console.error('Some appointment slots failed to save');
+          toast.error('Failed to create some appointment slots. Please try again.');
+          return;
+        }
+
+        // Use the first successful appointment's ID as the main booking ID
+        const mainAppointment = results[0];
+        if (mainAppointment) {
+          setBookingData({
+            ...bookingData,
+            bookingId: mainAppointment.id,
+          });
+          
+          toast.success('Appointment booked successfully!');
+          onNext();
+        } else {
+          toast.error('Failed to create appointment. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error confirming booking:', error);
+        toast.error('Failed to create appointment. Please try again.');
+      }
+    };
+
+    useImperativeHandle(ref, () => ({
+      handleConfirm,
     }));
 
+    const totalPrice = bookingData.service ? bookingData.service.price + 20 : 0; // Include priority fee
+
     return (
-      <div className="space-y-4">
-        <p className="text-gray-300 text-center text-xs md:text-sm">
-          Please review your booking details before confirming
-        </p>
-
-        <div className="bg-barbershop-black/50 rounded-lg p-1.5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-            {/* Barber Info */}
-            <div className="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-barbershop-charcoal/50 rounded-lg">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-barbershop-gold">
-                <img
-                  src={bookingData.barber?.image}
-                  alt={bookingData.barber?.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <User className="h-2.5 w-2.5 md:h-3 md:w-3 text-barbershop-gold" />
-                  <span className="text-white font-medium text-xs md:text-sm">Your Barber</span>
+      <div className="space-y-6">
+        {/* Booking Summary */}
+        <Card className="bg-barbershop-black/50 border-barbershop-gold/20">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-barbershop-gold mb-4">Booking Summary</h3>
+            
+            <div className="space-y-4">
+              {/* Barber */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-barbershop-gold/20 flex items-center justify-center">
+                  <User className="h-5 w-5 text-barbershop-gold" />
                 </div>
-                <p className="text-barbershop-gold text-xs md:text-sm">
-                  {bookingData.barber?.name}
-                </p>
-              </div>
-            </div>
-
-            {/* Service Info */}
-            <div className="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-barbershop-charcoal/50 rounded-lg">
-              <Scissors className="h-4 w-4 md:h-5 md:w-5 text-barbershop-gold" />
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-medium text-xs md:text-sm">Service</p>
-                    <p className="text-barbershop-gold text-xs md:text-sm">
-                      {bookingData.service?.name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-barbershop-gold font-bold text-xs md:text-sm">
-                        ₱{bookingData.service?.price}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1 md:space-x-2 mt-1">
-                      <Clock className="h-2.5 w-2.5 md:h-3 md:w-3 text-gray-400" />
-                      <span className="text-gray-400 text-xs">
-                        {bookingData.service?.duration} min
-                      </span>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-white font-medium">{bookingData.barber?.name}</p>
+                  <p className="text-gray-400 text-sm">Professional Barber</p>
                 </div>
               </div>
-            </div>
 
-            {/* Date & Time Info */}
-            <div className="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-barbershop-charcoal/50 rounded-lg">
-              <Calendar className="h-4 w-4 md:h-5 md:w-5 text-barbershop-gold" />
-              <div className="flex-1">
-                <p className="text-white font-medium text-xs md:text-sm">Date & Time</p>
-                <p className="text-barbershop-gold text-xs md:text-sm">
-                  {bookingData.date && format(bookingData.date, 'EEEE, MMMM d, yyyy')}
-                </p>
-                <p className="text-barbershop-gold text-xs md:text-sm">
-                  {bookingData.time}
-                </p>
+              {/* Service */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-barbershop-gold/20 flex items-center justify-center">
+                  <Scissors className="h-5 w-5 text-barbershop-gold" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">{bookingData.service?.name}</p>
+                  <p className="text-gray-400 text-sm">{bookingData.service?.duration} minutes</p>
+                </div>
               </div>
-            </div>
 
-            {/* Customer Information */}
-            <div className="flex items-center space-x-2 md:space-x-3 p-2 md:p-3 bg-barbershop-charcoal/50 rounded-lg">
-              <User className="h-4 w-4 md:h-5 md:w-5 text-barbershop-gold" />
-              <div className="flex-1">
-                <p className="text-white font-medium text-xs md:text-sm">Customer Information</p>
-                <p className="text-barbershop-gold text-xs md:text-sm">
-                  {bookingData.customerInfo.name}
-                </p>
-                <p className="text-gray-400 text-xs">
-                  {bookingData.customerInfo.phone}
-                </p>
-                {bookingData.customerInfo.email && (
-                  <p className="text-gray-400 text-xs">
-                    {bookingData.customerInfo.email}
+              {/* Date & Time */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-barbershop-gold/20 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-barbershop-gold" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">
+                    {bookingData.date && format(bookingData.date, 'EEEE, MMMM d, yyyy')}
                   </p>
+                  <div className="flex items-center space-x-1">
+                    <Clock className="h-3 w-3 text-gray-400" />
+                    <p className="text-gray-400 text-sm">{bookingData.time}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="space-y-2 pt-2 border-t border-barbershop-gold/20">
+                <div className="flex items-center space-x-3">
+                  <User className="h-4 w-4 text-barbershop-gold" />
+                  <p className="text-white">{bookingData.customerInfo.name}</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-4 w-4 text-barbershop-gold" />
+                  <p className="text-white">{bookingData.customerInfo.phone}</p>
+                </div>
+                {bookingData.customerInfo.email && (
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-4 w-4 text-barbershop-gold" />
+                    <p className="text-white">{bookingData.customerInfo.email}</p>
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Summary */}
-        <div className="bg-barbershop-gold/10 border border-barbershop-gold/30 rounded-lg p-2 md:p-3">
-          <h3 className="text-barbershop-gold font-medium mb-2 text-xs md:text-sm">Booking Summary</h3>
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300 text-xs md:text-sm">Service Price:</span>
-              <span className="text-white text-xs md:text-sm">₱{bookingData.service?.price}</span>
+              {/* Price */}
+              <div className="flex items-center justify-between pt-4 border-t border-barbershop-gold/20">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-barbershop-gold/20 flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-barbershop-gold" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Total Amount</p>
+                    <p className="text-gray-400 text-sm">Including ₱20 priority fee</p>
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-barbershop-gold">₱{totalPrice}</p>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300 text-xs md:text-sm">Priority Fee:</span>
-              <span className="text-white text-xs md:text-sm">₱20</span>
-            </div>
-            <hr className="border-barbershop-gold/30" />
-            <div className="flex justify-between items-center">
-              <span className="text-white font-medium text-xs md:text-sm">Total Amount:</span>
-              <span className="text-barbershop-gold font-bold text-sm md:text-lg">
-                ₱{(bookingData.service?.price || 0) + 20}
-              </span>
-            </div>
-          </div>
-          <p className="text-gray-400 text-xs mt-2">
-            • Priority fee ensures faster service for online bookings<br />
-            • Payment will be collected at the barbershop
-          </p>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Important Notes */}
+        <Card className="bg-barbershop-black/30 border-barbershop-gold/10">
+          <CardContent className="p-6">
+            <h4 className="text-barbershop-gold font-medium mb-3">Important Notes:</h4>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              <li>• Please arrive 5 minutes before your appointment time</li>
+              <li>• Show this booking confirmation to our staff upon arrival</li>
+              <li>• Payment can be made at the shop after service completion</li>
+              <li>• The ₱20 priority fee ensures your slot is reserved</li>
+              <li>• Cancellations must be made at least 2 hours in advance</li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
     );
   }
