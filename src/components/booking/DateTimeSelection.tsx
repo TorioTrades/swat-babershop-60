@@ -20,7 +20,8 @@ const timeSlots = [
   '11:00 AM', '11:20 AM', '11:40 AM', '12:00 PM', '12:20 PM', '12:40 PM',
   '1:00 PM', '1:20 PM', '1:40 PM', '2:00 PM', '2:20 PM', '2:40 PM',
   '3:00 PM', '3:20 PM', '3:40 PM', '4:00 PM', '4:20 PM', '4:40 PM',
-  '5:00 PM', '5:20 PM', '5:40 PM', '6:00 PM', '6:20 PM', '6:40 PM', '7:00 PM'
+  '5:00 PM', '5:20 PM', '5:40 PM', '6:00 PM', '6:20 PM', '6:40 PM', 
+  '7:00 PM', '7:20 PM', '7:40 PM', '8:00 PM', '8:20 PM', '8:40 PM', '9:00 PM'
 ];
 
 const DateTimeSelection = ({ bookingData, setBookingData }: DateTimeSelectionProps) => {
@@ -284,7 +285,7 @@ const DateTimeSelection = ({ bookingData, setBookingData }: DateTimeSelectionPro
 
         <div className="text-sm text-gray-400 space-y-1">
           <p>• Each appointment will be done not less than 20 minutes</p>
-          <p>• Shop hours: 9:00 AM - 7:00 PM (Mon-Sun)</p>
+          <p>• Shop hours: 9:00 AM - 9:00 PM (Mon-Sun)</p>
           <div className="flex items-center space-x-4 mt-2">
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 rounded-full bg-barbershop-gold"></div>

@@ -12,19 +12,19 @@ const barbers = [{
   name: 'Kean',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Classic Cuts', 'Beard Styling', 'Hot Towel Shave'],
-  experience: '6 years experience'
+  experience: 'Expert'
 }, {
   id: '2',
   name: 'Pao',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Modern Styles', 'Fade Cuts', 'Hair Washing'],
-  experience: '2 years experience'
+  experience: 'Skilled'
 }, {
   id: '3',
   name: 'Gelo',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Traditional Cuts', 'Mustache Grooming', 'Scalp Treatment'],
-  experience: '2 years experience'
+  experience: 'Skilled'
 }];
 
 const BarberSelection = ({
