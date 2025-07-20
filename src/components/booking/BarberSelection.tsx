@@ -1,12 +1,10 @@
 import { BookingData } from '../BookingDialog';
-
 interface BarberSelectionProps {
   bookingData: BookingData;
   setBookingData: (data: BookingData) => void;
   onNext: () => void;
   onClose: () => void;
 }
-
 const barbers = [{
   id: '1',
   name: 'Kean',
@@ -29,7 +27,6 @@ const barbers = [{
   experience: 'Skilled',
   expertise: 'Traditional cuts & scalp treatments'
 }];
-
 const BarberSelection = ({
   bookingData,
   setBookingData,
@@ -63,9 +60,7 @@ const BarberSelection = ({
                   {barber.name}
                 </h3>
                 
-                <p className="text-barbershop-gold text-sm mb-2">
-                  {barber.experience}
-                </p>
+                
                 
                 <p className="text-gray-300 text-xs leading-relaxed">
                   {barber.expertise}
@@ -76,5 +71,4 @@ const BarberSelection = ({
       </div>
     </div>;
 };
-
 export default BarberSelection;
