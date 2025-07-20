@@ -119,15 +119,11 @@ const DateTimeSelection = ({ bookingData, setBookingData }: DateTimeSelectionPro
     if (!selectedDate || !isToday(selectedDate)) return false;
     
     try {
-      // Parse the time string (e.g., "2:00 PM") with today's date
-      const timeDate = parse(time, 'h:mm a', new Date());
+      // Parse the time string (e.g., "7:00 PM") and combine with selected date
+      const timeDate = parse(time, 'h:mm a', selectedDate);
       const now = new Date();
       
-      // Set the parsed time to today's date for comparison
-      const todayTime = new Date();
-      todayTime.setHours(timeDate.getHours(), timeDate.getMinutes(), 0, 0);
-      
-      return isBefore(todayTime, now);
+      return isBefore(timeDate, now);
     } catch (error) {
       console.error('Error parsing time:', error);
       return false;
