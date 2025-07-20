@@ -12,19 +12,22 @@ const barbers = [{
   name: 'Kean',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Classic Cuts', 'Beard Styling', 'Hot Towel Shave'],
-  experience: 'Expert'
+  experience: 'Expert',
+  expertise: 'Master of timeless grooming with expertise in classic cuts and luxurious hot towel shaves.'
 }, {
   id: '2',
   name: 'Pao',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Modern Styles', 'Fade Cuts', 'Hair Washing'],
-  experience: 'Skilled'
+  experience: 'Skilled',
+  expertise: 'Specialist in contemporary trends and precision fade techniques for the modern gentleman.'
 }, {
   id: '3',
   name: 'Gelo',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Traditional Cuts', 'Mustache Grooming', 'Scalp Treatment'],
-  experience: 'Skilled'
+  experience: 'Skilled',
+  expertise: 'Traditional barber focused on classic styles and therapeutic scalp treatments for complete relaxation.'
 }];
 
 const BarberSelection = ({
@@ -60,8 +63,12 @@ const BarberSelection = ({
                   {barber.name}
                 </h3>
                 
-                <p className="text-barbershop-gold text-sm mb-3">
+                <p className="text-barbershop-gold text-sm mb-2">
                   {barber.experience}
+                </p>
+                
+                <p className="text-gray-300 text-xs leading-relaxed">
+                  {barber.expertise}
                 </p>
               </div>
             </div>
