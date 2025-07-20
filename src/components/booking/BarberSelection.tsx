@@ -13,21 +13,21 @@ const barbers = [{
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Classic Cuts', 'Beard Styling', 'Hot Towel Shave'],
   experience: 'Expert',
-  expertise: 'Master of timeless grooming with expertise in classic cuts and luxurious hot towel shaves.'
+  expertise: 'Classic cuts & hot towel shaves'
 }, {
   id: '2',
   name: 'Pao',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Modern Styles', 'Fade Cuts', 'Hair Washing'],
   experience: 'Skilled',
-  expertise: 'Specialist in contemporary trends and precision fade techniques for the modern gentleman.'
+  expertise: 'Modern styles & precision fades'
 }, {
   id: '3',
   name: 'Gelo',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Traditional Cuts', 'Mustache Grooming', 'Scalp Treatment'],
   experience: 'Skilled',
-  expertise: 'Traditional barber focused on classic styles and therapeutic scalp treatments for complete relaxation.'
+  expertise: 'Traditional cuts & scalp treatments'
 }];
 
 const BarberSelection = ({
