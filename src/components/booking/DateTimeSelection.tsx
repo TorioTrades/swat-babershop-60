@@ -116,14 +116,34 @@ const DateTimeSelection = ({ bookingData, setBookingData }: DateTimeSelectionPro
   const isTimeUnavailable = (time: string) => unavailableTimes.includes(time);
   
   const isTimePassed = (time: string) => {
-    if (!selectedDate || !isToday(selectedDate)) return false;
+    if (!selectedDate) return false;
+    
+    // Only check if time has passed for today's date
+    const today = new Date();
+    const selectedDateLocal = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // If the selected date is not today, don't mark any times as passed
+    if (selectedDateLocal.getTime() !== todayLocal.getTime()) {
+      return false;
+    }
     
     try {
-      // Parse the time string (e.g., "7:00 PM") and combine with selected date
-      const timeDate = parse(time, 'h:mm a', selectedDate);
-      const now = new Date();
+      // Parse the time string and create a date object for today
+      const [timeStr, period] = time.split(' ');
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      let hour24 = hours;
       
-      return isBefore(timeDate, now);
+      if (period === 'PM' && hours !== 12) {
+        hour24 = hours + 12;
+      } else if (period === 'AM' && hours === 12) {
+        hour24 = 0;
+      }
+      
+      const timeToday = new Date();
+      timeToday.setHours(hour24, minutes, 0, 0);
+      
+      return timeToday < new Date();
     } catch (error) {
       console.error('Error parsing time:', error);
       return false;
