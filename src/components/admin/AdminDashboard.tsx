@@ -220,7 +220,7 @@ export const AdminDashboard = ({
   const filterAppointments = (filter: string) => {
     const today = new Date().toISOString().split('T')[0];
     // Filter out duration block appointments - only show main appointments
-    const mainAppointments = appointments.filter(apt => !apt.service.includes('(Duration Block)'));
+    const mainAppointments = appointments.filter(apt => !apt.service.includes('(Duration Block'));
     let filtered;
     switch (filter) {
       case 'today':
@@ -250,7 +250,7 @@ export const AdminDashboard = ({
   };
   const today = new Date().toISOString().split('T')[0];
   // Count only main appointments, not duration blocks
-  const mainAppointments = appointments.filter(apt => !apt.service.includes('(Duration Block)'));
+  const mainAppointments = appointments.filter(apt => !apt.service.includes('(Duration Block'));
   const pendingCount = mainAppointments.filter(apt => apt.status === 'pending').length;
   const todayCount = mainAppointments.filter(apt => apt.date === today && apt.status === 'pending').length;
   const completedCount = mainAppointments.filter(apt => apt.status === 'completed').length;
