@@ -16,7 +16,7 @@ const barbers = [{
   expertise: 'Classic cuts & hot towel shaves'
 }, {
   id: '2',
-  name: 'Pao',
+  name: 'Edz',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Modern Styles', 'Fade Cuts', 'Hair Washing'],
   experience: 'Skilled',
