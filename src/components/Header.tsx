@@ -23,7 +23,7 @@ const Header = () => {
   }];
 
   const [clickCount, setClickCount] = useState(0);
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [clickTimeout, setClickTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const handleLogoClick = () => {
     const isMobile = window.innerWidth < 768; // md breakpoint
