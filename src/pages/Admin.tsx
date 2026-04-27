@@ -11,7 +11,7 @@ export interface Barber {
 }
 
 const barbers: Barber[] = [
-  { id: '1', name: 'Kean', username: 'Kean', password: 'Barber' },
+   { id: '1', name: 'Josh', username: 'Josh', password: 'Barber' },
   { id: '2', name: 'Pao', username: 'Pao', password: 'Barber' },
   { id: '3', name: 'Gelo', username: 'Gelo', password: 'Barber' },
   { id: 'admin', name: 'Admin', username: 'ADMIN', password: 'ADMIN', isAdmin: true }
