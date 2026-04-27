@@ -9,7 +9,7 @@ interface BarberSelectionProps {
 
 const barbers = [{
   id: '1',
-  name: 'Kean',
+   name: 'Josh',
   image: '/lovable-uploads/2a38f175-44b4-4f55-b321-b5ec3ee92bdf.png',
   specialties: ['Classic Cuts', 'Beard Styling', 'Hot Towel Shave'],
   experience: 'Expert',
